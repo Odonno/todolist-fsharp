@@ -51,16 +51,16 @@ let errorHandler (ex: Exception) (logger: ILogger) =
 
 let configureCors (builder: CorsPolicyBuilder) =
     builder
-        .WithOrigins("https://localhost:5201")
+        .SetIsOriginAllowed((fun _ -> true))
         .AllowAnyMethod()
         .AllowAnyHeader()
     |> ignore
 
 let configureApp (app: IApplicationBuilder) =
-    let env = app.ApplicationServices.GetService<IWebHostEnvironment>()
+    let env = app.ApplicationServices.GetService<IHostingEnvironment>()
 
     (
-    match env.EnvironmentName = "Development" with
+    match env.IsDevelopment() with
     | true  -> app.UseDeveloperExceptionPage()
     | false -> app.UseGiraffeErrorHandler errorHandler
     )

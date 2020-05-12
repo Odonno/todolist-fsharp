@@ -1,63 +1,80 @@
 ﻿// Copyright 2018-2019 Fabulous contributors. See LICENSE.md for license.
 namespace TodoList.Mobile
 
+#if APPSAVE
 open System.Diagnostics
+#endif
 open Fabulous
 open Fabulous.XamarinForms
 open Fabulous.XamarinForms.LiveUpdate
 open Xamarin.Forms
+open System.Net.Http
+open TodoList.Core.Business.Model
+open TodoList.Core.Business.Update
 
 module App = 
-    type Model = 
-      { Count : int
-        Step : int
-        TimerOn: bool }
 
-    type Msg = 
-        | Increment 
-        | Decrement 
-        | Reset
-        | SetStep of int
-        | TimerToggled of bool
-        | TimedTick
+    let daveoImage = 
+        ImagePath("https://image.slidesharecdn.com/agencedaveopresentation2-181113135323/95/mini-slideshow-daveo-quelques-photos-de-lagence-1-638.jpg")
 
-    let initModel = { Count = 0; Step = 1; TimerOn = false }
-
-    let init () = initModel, Cmd.none
-
-    let timerCmd =
-        async { do! Async.Sleep 200
-                return TimedTick }
-        |> Cmd.ofAsyncMsg
-
-    let update msg model =
-        match msg with
-        | Increment -> { model with Count = model.Count + model.Step }, Cmd.none
-        | Decrement -> { model with Count = model.Count - model.Step }, Cmd.none
-        | Reset -> init ()
-        | SetStep n -> { model with Step = n }, Cmd.none
-        | TimerToggled on -> { model with TimerOn = on }, (if on then timerCmd else Cmd.none)
-        | TimedTick -> 
-            if model.TimerOn then 
-                { model with Count = model.Count + model.Step }, timerCmd
-            else 
-                model, Cmd.none
-
+    let todoItemView (todoItem: TodoItem) dispatch =
+        View.StackLayout(
+            orientation = StackOrientation.Horizontal,
+            horizontalOptions = LayoutOptions.CenterAndExpand,
+            children = [
+                View.Entry(
+                    text = todoItem.Content,
+                    width = 150.,
+                    unfocused = (fun _ -> dispatch (UpdateTask todoItem))
+                )
+                View.Button(
+                    text = "Delete", 
+                    command = (fun () -> dispatch (DeleteTask todoItem)), 
+                    horizontalOptions = LayoutOptions.Center
+                )
+            ]  
+        )
+        
     let view (model: Model) dispatch =
         View.ContentPage(
-          content = View.StackLayout(padding = Thickness 20.0, verticalOptions = LayoutOptions.Center,
-            children = [ 
-                View.Label(text = sprintf "%d" model.Count, horizontalOptions = LayoutOptions.Center, width=200.0, horizontalTextAlignment=TextAlignment.Center)
-                View.Button(text = "Increment", command = (fun () -> dispatch Increment), horizontalOptions = LayoutOptions.Center)
-                View.Button(text = "Decrement", command = (fun () -> dispatch Decrement), horizontalOptions = LayoutOptions.Center)
-                View.Label(text = "Timer", horizontalOptions = LayoutOptions.Center)
-                View.Switch(isToggled = model.TimerOn, toggled = (fun on -> dispatch (TimerToggled on.Value)), horizontalOptions = LayoutOptions.Center)
-                View.Slider(minimumMaximum = (0.0, 10.0), value = double model.Step, valueChanged = (fun args -> dispatch (SetStep (int (args.NewValue + 0.5)))), horizontalOptions = LayoutOptions.FillAndExpand)
-                View.Label(text = sprintf "Step size: %d" model.Step, horizontalOptions = LayoutOptions.Center) 
-                View.Button(text = "Reset", horizontalOptions = LayoutOptions.Center, command = (fun () -> dispatch Reset), commandCanExecute = (model <> initModel))
-            ]))
+            backgroundColor = Color.White,
+            content = View.StackLayout(
+                padding = Thickness 20.0, 
+                verticalOptions = LayoutOptions.Start,
+                children = [ 
+                    View.Image(source = daveoImage)
+                    View.ScrollView(
+                        View.StackLayout(
+                            children = (
+                                model.Tasks 
+                                |> List.map (fun t -> todoItemView t dispatch)
+                            )
+                        )
+                    )
+                    View.Entry(
+                        text = model.NewTaskContent, 
+                        placeholder = "New things to do?", 
+                        margin = Thickness(0., 40., 0., 0.),
+                        textChanged =
+                            (fun args -> dispatch (SetNewTaskContent args.NewTextValue)),
+                        completed = 
+                            (fun _ ->
+                                if model.NewTaskContent.Length > 0 then
+                                    let payload = {
+                                        Content = model.NewTaskContent
+                                    }
+                                    let message = CreateNewTask payload
+                                    dispatch message
+                                else
+                                    ()
+                            )
+                    )
+                ])
+        )
 
-    // Note, this declaration is needed if you enable LiveUpdate
+    let http = new HttpClient()
+    let update = update http
+
     let program = XamarinFormsProgram.mkProgram init update view
 
 type App () as app = 
@@ -73,8 +90,8 @@ type App () as app =
 #if DEBUG
     // Uncomment this line to enable live update in debug mode. 
     // See https://fsprojects.github.io/Fabulous/Fabulous.XamarinForms/tools.html#live-update for further  instructions.
-    //
-    //do runner.EnableLiveUpdate()
+    
+    do runner.EnableLiveUpdate()
 #endif    
 
     // Uncomment this code to save the application state to app.Properties using Newtonsoft.Json

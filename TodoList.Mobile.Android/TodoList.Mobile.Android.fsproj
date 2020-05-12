@@ -131,6 +131,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Elmish">
+      <HintPath>..\packages\Elmish.2.0.3\lib\netstandard2.0\Elmish.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android" />
     <Reference Include="System" />

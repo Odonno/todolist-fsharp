@@ -1,0 +1,18 @@
+﻿@page "/"
+@namespace TodoList.Front.Server
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model HostModel
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Bolero application</title>
+    <base href="/">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    <link rel="stylesheet" href="css/index.css">
+  </head>
+  <body>
+    <div id="main">@(await Html.RenderComponentAsync<TodoList.Front.Client.Main.TodoApp>(Model.IsServer ? RenderMode.ServerPrerendered : RenderMode.Static))</div>
+    <script src="_framework/blazor.@(Model.IsServer ? "server" : "webassembly").js"></script>
+  </body>
+</html>

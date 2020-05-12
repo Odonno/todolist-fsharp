@@ -1,0 +1,23 @@
+<div class="app">
+    <header class="header">
+        <img src="/images/logo.png" style="height: 50px; margin-bottom: 40px;" alt="logo" />
+
+        ${Tasks}
+        <template id="TodoTemplate">
+            <div>
+                <input style="width: 350px;"
+                       bind="${Content}"
+                       onblur="${HandleTodoBlur}" />
+
+                <button onclick="${HandleRemoveTodoButtonClicked}">
+                    Delete
+                </button>
+            </div>
+        </template>
+
+        <input placeholder="New things to do?"
+               style="margin-top: 40px; width: 550px;"
+               bind="${NewTaskContent}"
+               onkeypress="${HandleNewTodoKeyPressed}" />
+    </header>
+</div>

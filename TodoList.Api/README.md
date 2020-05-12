@@ -1,4 +1,4 @@
-# TodoListWeb.Api
+# TodoList Api
 
 A [Giraffe](https://github.com/giraffe-fsharp/Giraffe) web application, which has been created via the `dotnet new giraffe` command.
 

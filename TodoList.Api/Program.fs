@@ -1,4 +1,4 @@
-module firstGiraffe.App
+module TodoList.Giraffe.App
 
 open System
 open Microsoft.AspNetCore.Builder

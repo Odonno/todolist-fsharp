@@ -4,15 +4,18 @@
 @model HostModel
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
     <title>Bolero application</title>
     <base href="/">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="css/index.css">
-  </head>
-  <body>
+</head>
+<body>
     <div id="main">@(await Html.RenderComponentAsync<TodoList.Front.Client.Main.TodoApp>(Model.IsServer ? RenderMode.ServerPrerendered : RenderMode.Static))</div>
-    <script src="_framework/blazor.@(Model.IsServer ? "server" : "webassembly").js"></script>
-  </body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="_framework/blazor.@(Model.IsServer ? " server" : "webassembly" ).js"></script>
+</body>
 </html>
